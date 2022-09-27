@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/aakosarev/md5/internal"
+	"github.com/aakosarev/md5/internal/md5"
 	"io"
 )
 
@@ -101,19 +102,26 @@ func (m *main) buildUI() *fyne.Container {
 						return
 					}
 					data, _ = io.ReadAll(file)
-					if m.isConfirmed(data) {
-						fmt.Println("1", data)
+					if m.isConfirmed(&data) {
+						hash := md5.CalcMD5(data)
+						m.hash.SetText(hash)
+						if m.checkSaveHashToFile.Checked {
+							m.saveDataToFile(hash)
+						}
 					} else {
 						return
 					}
-
 				}, m.window)
 			fopenDialog.Resize(fyne.NewSize(500, 500))
 			fopenDialog.Show()
 		} else {
 			data = []byte(m.input.Text)
-			if m.isConfirmed(data) {
-				fmt.Println("2", data)
+			if m.isConfirmed(&data) {
+				hash := md5.CalcMD5(data)
+				m.hash.SetText(hash)
+				if m.checkSaveHashToFile.Checked {
+					m.saveDataToFile(hash)
+				}
 			} else {
 				return
 			}
@@ -123,7 +131,116 @@ func (m *main) buildUI() *fyne.Container {
 	m.getHashBttn.Resize(fyne.NewSize(130, 40))
 	m.getHashBttn.Move(fyne.NewPos(50, 260))
 
-	m.compareBttn = widget.NewButton("Compare", func() {}) //TODO
+	m.compareBttn = widget.NewButton("Compare", func() {
+		var dataHash []byte
+		if m.checkGetHashFromFile.Checked {
+			fopenDialog := dialog.NewFileOpen(
+				func(file fyne.URIReadCloser, err error) {
+					defer func() {
+						if file != nil {
+							file.Close()
+						}
+					}()
+					if err != nil {
+						return
+					}
+					if file == nil {
+						return
+					}
+					dataHash, _ = io.ReadAll(file)
+
+					var data []byte
+					if m.checkGetTextFromFile.Checked {
+						fopenDialog := dialog.NewFileOpen(
+							func(file fyne.URIReadCloser, err error) {
+								defer func() {
+									if file != nil {
+										file.Close()
+									}
+								}()
+								if err != nil {
+									return
+								}
+								if file == nil {
+									return
+								}
+								data, _ = io.ReadAll(file)
+								if m.checkUseKeyWord.Checked {
+									data = append(data, []byte(internal.KW)...)
+								}
+								hash := md5.CalcMD5(data)
+								if hash == string(dataHash) {
+									dialog.ShowInformation("Success", "Hashes matched!", m.window)
+								} else {
+									dialog.ShowInformation("Fail", "Hashes not matched!", m.window)
+								}
+								//TODO 1
+
+							}, m.window)
+						fopenDialog.Resize(fyne.NewSize(500, 500))
+						fopenDialog.Show()
+					} else {
+						data = []byte(m.input.Text)
+						if m.checkUseKeyWord.Checked {
+							data = append(data, []byte(internal.KW)...)
+						}
+						hash := md5.CalcMD5(data)
+						if hash == string(dataHash) {
+							dialog.ShowInformation("Success", "Hashes matched!", m.window)
+						} else {
+							dialog.ShowInformation("Fail", "Hashes not matched!", m.window)
+						}
+						//TODO 2
+					}
+				}, m.window)
+			fopenDialog.Resize(fyne.NewSize(500, 500))
+			fopenDialog.Show()
+		} else {
+			dataHash = []byte(m.hash.Text)
+			var data []byte
+			if m.checkGetTextFromFile.Checked {
+				fopenDialog := dialog.NewFileOpen(
+					func(file fyne.URIReadCloser, err error) {
+						defer func() {
+							if file != nil {
+								file.Close()
+							}
+						}()
+						if err != nil {
+							return
+						}
+						if file == nil {
+							return
+						}
+						data, _ = io.ReadAll(file)
+						if m.checkUseKeyWord.Checked {
+							data = append(data, []byte(internal.KW)...)
+						}
+						hash := md5.CalcMD5(data)
+						if hash == string(dataHash) {
+							dialog.ShowInformation("Success", "Hashes matched!", m.window)
+						} else {
+							dialog.ShowInformation("Fail", "Hashes not matched!", m.window)
+						}
+						//TODO 3
+					}, m.window)
+				fopenDialog.Resize(fyne.NewSize(500, 500))
+				fopenDialog.Show()
+			} else {
+				data = []byte(m.input.Text)
+				if m.checkUseKeyWord.Checked {
+					data = append(data, []byte(internal.KW)...)
+				}
+				hash := md5.CalcMD5(data)
+				if hash == string(dataHash) {
+					dialog.ShowInformation("Success", "Hashes matched!", m.window)
+				} else {
+					dialog.ShowInformation("Fail", "Hashes not matched!", m.window)
+				}
+				//TODO 4
+			}
+		}
+	})
 	m.compareBttn.Resize(fyne.NewSize(150, 60))
 	m.compareBttn.Move(fyne.NewPos(500, 300))
 
@@ -168,11 +285,12 @@ func (m *main) buildUI() *fyne.Container {
 	)
 }
 
-func (m *main) isConfirmed(data []byte) bool {
+func (m *main) isConfirmed(data *[]byte) bool {
 	if m.checkUseKeyWord.Checked {
 		wait := true
 		confirmationKeyWordWindow := m.app.NewWindow("Confirmation of the KeyWord")
-		confirmationKeyWordWindow.Resize(fyne.NewSize(550, 110))
+		confirmationKeyWordWindow.Resize(fyne.NewSize(550, 210))
+
 		confirmationKeyWordWindow.SetFixedSize(true)
 		confirmationKeyWordWindow.CenterOnScreen()
 		ck := newConfirmationKeyword(m.app, confirmationKeyWordWindow)
@@ -184,7 +302,9 @@ func (m *main) isConfirmed(data []byte) bool {
 		for wait {
 		}
 		if internal.Confirmed {
-			data = append(data, []byte(internal.KW)...)
+			fmt.Println(data)
+			*data = append(*data, []byte(internal.KW)...)
+			fmt.Println(data)
 		}
 		return internal.Confirmed
 	} else {

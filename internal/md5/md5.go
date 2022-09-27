@@ -56,7 +56,7 @@ func rawMD5ToHEX(value uint32) string {
 	return res
 }
 
-func calcMD5(buf []byte) string {
+func CalcMD5(buf []byte) string {
 	dataLen := uint64(len(buf) * 8)
 
 	appendPaddingBytes(&buf)

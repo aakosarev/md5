@@ -3,6 +3,7 @@ package ui
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/theme"
 	"sync"
 )
 
@@ -30,6 +31,9 @@ func GetApp() *App {
 
 func (a *App) Run() {
 	a.window.Resize(fyne.NewSize(705, 560))
+	a.app.Settings().SetTheme(theme.DarkTheme())
+	icon, _ := fyne.LoadResourceFromPath("./internal/icons/icon.png")
+	a.window.SetIcon(icon)
 	a.window.SetFixedSize(true)
 	a.window.CenterOnScreen()
 	a.window.SetMaster()

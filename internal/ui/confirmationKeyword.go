@@ -28,12 +28,12 @@ func (ck *confirmationKeyword) buildUI() *fyne.Container {
 
 	ck.labelKeyWord = widget.NewLabel("KeyWord:")
 	ck.labelKeyWord.Resize(fyne.NewSize(100, 10))
-	ck.labelKeyWord.Move(fyne.NewPos(30, 30))
+	ck.labelKeyWord.Move(fyne.NewPos(30, 75))
 
 	ck.keyWord = widget.NewPasswordEntry()
 	ck.keyWord.SetPlaceHolder("Enter the KeyWord...")
 	ck.keyWord.Resize(fyne.NewSize(200, 40))
-	ck.keyWord.Move(fyne.NewPos(170, 30))
+	ck.keyWord.Move(fyne.NewPos(170, 75))
 
 	ck.confirmBttn = widget.NewButton("Confirm", func() {
 		if ck.keyWord.Text == internal.KW {
@@ -53,7 +53,7 @@ func (ck *confirmationKeyword) buildUI() *fyne.Container {
 		}
 	})
 	ck.confirmBttn.Resize(fyne.NewSize(100, 40))
-	ck.confirmBttn.Move(fyne.NewPos(400, 30))
+	ck.confirmBttn.Move(fyne.NewPos(400, 75))
 
 	return container.NewWithoutLayout(
 		ck.labelKeyWord,
