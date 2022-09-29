@@ -151,46 +151,14 @@ func (m *main) buildUI() *fyne.Container {
 
 					var data []byte
 					if m.checkGetTextFromFile.Checked {
-						fopenDialog := dialog.NewFileOpen(
-							func(file fyne.URIReadCloser, err error) {
-								defer func() {
-									if file != nil {
-										file.Close()
-									}
-								}()
-								if err != nil {
-									return
-								}
-								if file == nil {
-									return
-								}
-								data, _ = io.ReadAll(file)
-								if m.checkUseKeyWord.Checked {
-									data = append(data, []byte(internal.KW)...)
-								}
-								hash := md5.CalcMD5(data)
-								if hash == string(dataHash) {
-									dialog.ShowInformation("Success", "Hashes matched!", m.window)
-								} else {
-									dialog.ShowInformation("Fail", "Hashes not matched!", m.window)
-								}
-								//TODO 1
-
-							}, m.window)
-						fopenDialog.Resize(fyne.NewSize(500, 500))
-						fopenDialog.Show()
+						m.compareIfTextFromFile(&data, dataHash)
 					} else {
 						data = []byte(m.input.Text)
-						if m.checkUseKeyWord.Checked {
+						if m.checkUseKeyWord.Checked { // TODO
 							data = append(data, []byte(internal.KW)...)
 						}
 						hash := md5.CalcMD5(data)
-						if hash == string(dataHash) {
-							dialog.ShowInformation("Success", "Hashes matched!", m.window)
-						} else {
-							dialog.ShowInformation("Fail", "Hashes not matched!", m.window)
-						}
-						//TODO 2
+						m.compareHashs(hash, string(dataHash))
 					}
 				}, m.window)
 			fopenDialog.Resize(fyne.NewSize(500, 500))
@@ -199,45 +167,14 @@ func (m *main) buildUI() *fyne.Container {
 			dataHash = []byte(m.hash.Text)
 			var data []byte
 			if m.checkGetTextFromFile.Checked {
-				fopenDialog := dialog.NewFileOpen(
-					func(file fyne.URIReadCloser, err error) {
-						defer func() {
-							if file != nil {
-								file.Close()
-							}
-						}()
-						if err != nil {
-							return
-						}
-						if file == nil {
-							return
-						}
-						data, _ = io.ReadAll(file)
-						if m.checkUseKeyWord.Checked {
-							data = append(data, []byte(internal.KW)...)
-						}
-						hash := md5.CalcMD5(data)
-						if hash == string(dataHash) {
-							dialog.ShowInformation("Success", "Hashes matched!", m.window)
-						} else {
-							dialog.ShowInformation("Fail", "Hashes not matched!", m.window)
-						}
-						//TODO 3
-					}, m.window)
-				fopenDialog.Resize(fyne.NewSize(500, 500))
-				fopenDialog.Show()
+				m.compareIfTextFromFile(&data, dataHash)
 			} else {
 				data = []byte(m.input.Text)
-				if m.checkUseKeyWord.Checked {
+				if m.checkUseKeyWord.Checked { // TODO
 					data = append(data, []byte(internal.KW)...)
 				}
 				hash := md5.CalcMD5(data)
-				if hash == string(dataHash) {
-					dialog.ShowInformation("Success", "Hashes matched!", m.window)
-				} else {
-					dialog.ShowInformation("Fail", "Hashes not matched!", m.window)
-				}
-				//TODO 4
+				m.compareHashs(hash, string(dataHash))
 			}
 		}
 	})
@@ -328,4 +265,37 @@ func (m *main) saveDataToFile(data string) {
 	)
 	fsDialog.Resize(fyne.NewSize(500, 500))
 	fsDialog.Show()
+}
+
+func (m *main) compareHashs(newHash string, oldHash string) {
+	if newHash == string(oldHash) {
+		dialog.ShowInformation("Success", "Hashes matched!", m.window)
+	} else {
+		dialog.ShowInformation("Fail", "Hashes not matched!", m.window)
+	}
+}
+
+func (m *main) compareIfTextFromFile(data *[]byte, dataHash []byte) {
+	fopenDialog := dialog.NewFileOpen(
+		func(file fyne.URIReadCloser, err error) {
+			defer func() {
+				if file != nil {
+					file.Close()
+				}
+			}()
+			if err != nil {
+				return
+			}
+			if file == nil {
+				return
+			}
+			*data, _ = io.ReadAll(file)
+			if m.checkUseKeyWord.Checked {
+				*data = append(*data, []byte(internal.KW)...)
+			}
+			hash := md5.CalcMD5(*data)
+			m.compareHashs(hash, string(dataHash))
+		}, m.window)
+	fopenDialog.Resize(fyne.NewSize(500, 500))
+	fopenDialog.Show()
 }

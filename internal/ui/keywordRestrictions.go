@@ -110,6 +110,21 @@ func (kr *keywordRestrictions) getSelected() []string {
 
 func (kr *keywordRestrictions) apply() {
 	var err1, err2 error
+	selected := kr.checksRestriction.Selected
+
+	var minLenInt int
+	minLenInt, err2 = strconv.Atoi(kr.minLen.Text)
+	if err2 != nil {
+		dialog.ShowInformation("Error", "Incorrect minimum keyword length.\n Enter the correct value!", kr.window)
+		kr.minLen.SetText("")
+		return
+	}
+
+	if minLenInt < len(selected) {
+		minLemStr := strconv.Itoa(len(selected))
+		kr.minLen.SetText(minLemStr)
+	}
+
 	internal.MaxLenKW, err1 = strconv.Atoi(kr.maxLen.Text)
 	internal.MinLenKW, err2 = strconv.Atoi(kr.minLen.Text)
 	if err1 != nil {
