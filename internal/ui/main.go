@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -102,28 +101,27 @@ func (m *main) buildUI() *fyne.Container {
 						return
 					}
 					data, _ = io.ReadAll(file)
-					if m.isConfirmed(&data) {
-						hash := md5.CalcMD5(data)
-						m.hash.SetText(hash)
-						if m.checkSaveHashToFile.Checked {
-							m.saveDataToFile(hash)
-						}
-					} else {
-						return
+					m.input.SetText(string(data))
+					if m.checkUseKeyWord.Checked {
+						data = append(data, []byte(internal.KW)...)
+					}
+					hash := md5.CalcMD5(data)
+					m.hash.SetText(hash)
+					if m.checkSaveHashToFile.Checked {
+						m.saveDataToFile(hash)
 					}
 				}, m.window)
 			fopenDialog.Resize(fyne.NewSize(500, 500))
 			fopenDialog.Show()
 		} else {
 			data = []byte(m.input.Text)
-			if m.isConfirmed(&data) {
-				hash := md5.CalcMD5(data)
-				m.hash.SetText(hash)
-				if m.checkSaveHashToFile.Checked {
-					m.saveDataToFile(hash)
-				}
-			} else {
-				return
+			if m.checkUseKeyWord.Checked {
+				data = append(data, []byte(internal.KW)...)
+			}
+			hash := md5.CalcMD5(data)
+			m.hash.SetText(hash)
+			if m.checkSaveHashToFile.Checked {
+				m.saveDataToFile(hash)
 			}
 		}
 
@@ -154,8 +152,9 @@ func (m *main) buildUI() *fyne.Container {
 						m.compareIfTextFromFile(&data, dataHash)
 					} else {
 						data = []byte(m.input.Text)
-						if m.checkUseKeyWord.Checked { // TODO
-							data = append(data, []byte(internal.KW)...)
+						if m.checkUseKeyWord.Checked {
+							m.inputKeyWordForCompare()
+							data = append(data, []byte(internal.KWForCompare)...)
 						}
 						hash := md5.CalcMD5(data)
 						m.compareHashs(hash, string(dataHash))
@@ -170,8 +169,9 @@ func (m *main) buildUI() *fyne.Container {
 				m.compareIfTextFromFile(&data, dataHash)
 			} else {
 				data = []byte(m.input.Text)
-				if m.checkUseKeyWord.Checked { // TODO
-					data = append(data, []byte(internal.KW)...)
+				if m.checkUseKeyWord.Checked {
+					m.inputKeyWordForCompare()
+					data = append(data, []byte(internal.KWForCompare)...)
 				}
 				hash := md5.CalcMD5(data)
 				m.compareHashs(hash, string(dataHash))
@@ -222,33 +222,6 @@ func (m *main) buildUI() *fyne.Container {
 	)
 }
 
-func (m *main) isConfirmed(data *[]byte) bool {
-	if m.checkUseKeyWord.Checked {
-		wait := true
-		confirmationKeyWordWindow := m.app.NewWindow("Confirmation of the KeyWord")
-		confirmationKeyWordWindow.Resize(fyne.NewSize(550, 210))
-
-		confirmationKeyWordWindow.SetFixedSize(true)
-		confirmationKeyWordWindow.CenterOnScreen()
-		ck := newConfirmationKeyword(m.app, confirmationKeyWordWindow)
-		confirmationKeyWordWindow.SetContent(ck.buildUI())
-		confirmationKeyWordWindow.Show()
-		confirmationKeyWordWindow.SetOnClosed(func() {
-			wait = false
-		})
-		for wait {
-		}
-		if internal.Confirmed {
-			fmt.Println(data)
-			*data = append(*data, []byte(internal.KW)...)
-			fmt.Println(data)
-		}
-		return internal.Confirmed
-	} else {
-		return true
-	}
-}
-
 func (m *main) saveDataToFile(data string) {
 	fsDialog := dialog.NewFileSave(
 		func(file fyne.URIWriteCloser, err error) {
@@ -291,11 +264,28 @@ func (m *main) compareIfTextFromFile(data *[]byte, dataHash []byte) {
 			}
 			*data, _ = io.ReadAll(file)
 			if m.checkUseKeyWord.Checked {
-				*data = append(*data, []byte(internal.KW)...)
+				m.inputKeyWordForCompare()
+				*data = append(*data, []byte(internal.KWForCompare)...)
 			}
 			hash := md5.CalcMD5(*data)
 			m.compareHashs(hash, string(dataHash))
 		}, m.window)
 	fopenDialog.Resize(fyne.NewSize(500, 500))
 	fopenDialog.Show()
+}
+
+func (m *main) inputKeyWordForCompare(){
+	wait := true
+	inputKeyWordWindow := m.app.NewWindow("Enter of the KeyWord")
+	inputKeyWordWindow.Resize(fyne.NewSize(550, 210))
+	inputKeyWordWindow.SetFixedSize(true)
+	inputKeyWordWindow.CenterOnScreen()
+	ck := newInputKeyword(m.app, inputKeyWordWindow)
+	inputKeyWordWindow.SetContent(ck.buildUI())
+	inputKeyWordWindow.Show()
+	inputKeyWordWindow.SetOnClosed(func() {
+		wait = false
+	})
+	for wait {
+	}
 }

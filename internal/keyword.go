@@ -13,7 +13,7 @@ var (
 	LowerKW   = false
 	SpecialKW = false
 	KW        = ""
-	Confirmed = false
+	KWForCompare = ""
 )
 
 func CheckForDigits(keyWord string) bool {
