@@ -56,6 +56,7 @@ func (m *main) buildUI() *fyne.Container {
 	m.hash.Move(fyne.NewPos(50, 400))
 
 	m.setKeyWordBttn = widget.NewButton("Set KeyWord", func() {
+		wait := true
 		setKeyWordWindow := m.app.NewWindow("Set KeyWord")
 		setKeyWordWindow.Resize(fyne.NewSize(490, 245))
 		setKeyWordWindow.SetFixedSize(true)
@@ -63,6 +64,11 @@ func (m *main) buildUI() *fyne.Container {
 		sk := newSetKeyword(m.app, setKeyWordWindow)
 		setKeyWordWindow.SetContent(sk.buildUI())
 		setKeyWordWindow.Show()
+		setKeyWordWindow.SetOnClosed(func(){
+			wait = false
+		})
+		for wait {
+		}
 	})
 	m.setKeyWordBttn.Resize(fyne.NewSize(130, 40))
 	m.setKeyWordBttn.Move(fyne.NewPos(50, 315))
@@ -186,6 +192,7 @@ func (m *main) buildUI() *fyne.Container {
 	})
 	menuFile := fyne.NewMenu("File", menuItemSaveTextToFile)
 	menuItemSetKeyWordRestrictions := fyne.NewMenuItem("Set a KeyWord restriction", func() {
+		wait := true
 		keyWordRestrictionsWindow := m.app.NewWindow("KeyWord restriction")
 		keyWordRestrictionsWindow.Resize(fyne.NewSize(460, 500))
 		keyWordRestrictionsWindow.SetFixedSize(true)
@@ -193,6 +200,11 @@ func (m *main) buildUI() *fyne.Container {
 		kr := newKeywordRestrictions(m.app, keyWordRestrictionsWindow)
 		keyWordRestrictionsWindow.SetContent(kr.buildUI())
 		keyWordRestrictionsWindow.Show()
+		keyWordRestrictionsWindow.SetOnClosed(func(){
+			wait = false
+		})
+		for wait {
+		}
 	})
 	menuOptions := fyne.NewMenu("Options", menuItemSetKeyWordRestrictions)
 	menuItemAbout := fyne.NewMenuItem("About", func() {
