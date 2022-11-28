@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -108,7 +107,6 @@ func (m *main) buildUI() *fyne.Container {
 						return
 					}
 					data, _ = io.ReadAll(file)
-					m.input.SetText(string(data))
 					if m.checkUseKeyWord.Checked {
 						if internal.FirstInput {
 							wait := true
@@ -124,14 +122,14 @@ func (m *main) buildUI() *fyne.Container {
 							})
 							for wait {
 							}
-
+							if !ok {
+								return
+							}
+							ok = false
 							internal.FirstInput = false
 						}
-						fmt.Println(2)
 						data = append(data, []byte(internal.KW)...)
-
 					}
-					fmt.Println(3)
 					hash := md5.CalcMD5(data)
 					m.hash.SetText(hash)
 					if m.checkSaveHashToFile.Checked {
@@ -157,7 +155,10 @@ func (m *main) buildUI() *fyne.Container {
 					})
 					for wait {
 					}
-
+					if !ok {
+						return
+					}
+					ok = false
 					internal.FirstInput = false
 				}
 				data = append(data, []byte(internal.KW)...)
@@ -198,6 +199,10 @@ func (m *main) buildUI() *fyne.Container {
 						data = []byte(m.input.Text)
 						if m.checkUseKeyWord.Checked {
 							m.inputKeyWordForCompare()
+							if !okk {
+								return
+							}
+							okk = false
 							data = append(data, []byte(internal.KWForCompare)...)
 						}
 						hash := md5.CalcMD5(data)
@@ -215,6 +220,10 @@ func (m *main) buildUI() *fyne.Container {
 				data = []byte(m.input.Text)
 				if m.checkUseKeyWord.Checked {
 					m.inputKeyWordForCompare()
+					if !okk {
+						return
+					}
+					okk = false
 					data = append(data, []byte(internal.KWForCompare)...)
 				}
 				hash := md5.CalcMD5(data)

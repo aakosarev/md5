@@ -10,11 +10,13 @@ import (
 type inputKeyword struct {
 	labelKeyWord *widget.Label
 	keyWord      *widget.Entry
-	inputBttn  *widget.Button
+	inputBttn    *widget.Button
 
 	app    fyne.App
 	window fyne.Window
 }
+
+var okk = false
 
 func newInputKeyword(app fyne.App, window fyne.Window) *inputKeyword {
 	return &inputKeyword{
@@ -34,8 +36,9 @@ func (ik *inputKeyword) buildUI() *fyne.Container {
 	ik.keyWord.Resize(fyne.NewSize(200, 40))
 	ik.keyWord.Move(fyne.NewPos(170, 75))
 
-	ik.inputBttn = widget.NewButton("Enter", func(){
+	ik.inputBttn = widget.NewButton("Enter", func() {
 		internal.KWForCompare = ik.keyWord.Text
+		okk = true
 		ik.window.Close()
 	})
 	ik.inputBttn.Resize(fyne.NewSize(100, 40))

@@ -20,6 +20,8 @@ type setKeyword struct {
 	window fyne.Window
 }
 
+var ok = false
+
 func newSetKeyword(app fyne.App, window fyne.Window) *setKeyword {
 	return &setKeyword{
 		app:    app,
@@ -69,6 +71,7 @@ func (sk *setKeyword) buildUI() *fyne.Container {
 
 		} else {
 			internal.KW = sk.keyWord.Text
+			ok = true
 			sk.window.Close()
 		}
 	})
