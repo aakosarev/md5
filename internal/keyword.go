@@ -6,14 +6,15 @@ import (
 )
 
 var (
-	MinLenKW  = 3
-	MaxLenKW  = 15
-	DigitKW   = false
-	UpperKW   = false
-	LowerKW   = false
-	SpecialKW = false
-	KW        = ""
+	MinLenKW     = 3
+	MaxLenKW     = 15
+	DigitKW      = false
+	UpperKW      = false
+	LowerKW      = false
+	SpecialKW    = false
+	KW           = ""
 	KWForCompare = ""
+	FirstInput   = true
 )
 
 func CheckForDigits(keyWord string) bool {

@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -64,7 +65,7 @@ func (m *main) buildUI() *fyne.Container {
 		sk := newSetKeyword(m.app, setKeyWordWindow)
 		setKeyWordWindow.SetContent(sk.buildUI())
 		setKeyWordWindow.Show()
-		setKeyWordWindow.SetOnClosed(func(){
+		setKeyWordWindow.SetOnClosed(func() {
 			wait = false
 		})
 		for wait {
@@ -109,8 +110,28 @@ func (m *main) buildUI() *fyne.Container {
 					data, _ = io.ReadAll(file)
 					m.input.SetText(string(data))
 					if m.checkUseKeyWord.Checked {
+						if internal.FirstInput {
+							wait := true
+							setKeyWordWindow := m.app.NewWindow("Set KeyWord")
+							setKeyWordWindow.Resize(fyne.NewSize(490, 245))
+							setKeyWordWindow.SetFixedSize(true)
+							setKeyWordWindow.CenterOnScreen()
+							sk := newSetKeyword(m.app, setKeyWordWindow)
+							setKeyWordWindow.SetContent(sk.buildUI())
+							setKeyWordWindow.Show()
+							setKeyWordWindow.SetOnClosed(func() {
+								wait = false
+							})
+							for wait {
+							}
+
+							internal.FirstInput = false
+						}
+						fmt.Println(2)
 						data = append(data, []byte(internal.KW)...)
+
 					}
+					fmt.Println(3)
 					hash := md5.CalcMD5(data)
 					m.hash.SetText(hash)
 					if m.checkSaveHashToFile.Checked {
@@ -122,6 +143,23 @@ func (m *main) buildUI() *fyne.Container {
 		} else {
 			data = []byte(m.input.Text)
 			if m.checkUseKeyWord.Checked {
+				if internal.FirstInput {
+					wait := true
+					setKeyWordWindow := m.app.NewWindow("Set KeyWord")
+					setKeyWordWindow.Resize(fyne.NewSize(490, 245))
+					setKeyWordWindow.SetFixedSize(true)
+					setKeyWordWindow.CenterOnScreen()
+					sk := newSetKeyword(m.app, setKeyWordWindow)
+					setKeyWordWindow.SetContent(sk.buildUI())
+					setKeyWordWindow.Show()
+					setKeyWordWindow.SetOnClosed(func() {
+						wait = false
+					})
+					for wait {
+					}
+
+					internal.FirstInput = false
+				}
 				data = append(data, []byte(internal.KW)...)
 			}
 			hash := md5.CalcMD5(data)
@@ -200,7 +238,7 @@ func (m *main) buildUI() *fyne.Container {
 		kr := newKeywordRestrictions(m.app, keyWordRestrictionsWindow)
 		keyWordRestrictionsWindow.SetContent(kr.buildUI())
 		keyWordRestrictionsWindow.Show()
-		keyWordRestrictionsWindow.SetOnClosed(func(){
+		keyWordRestrictionsWindow.SetOnClosed(func() {
 			wait = false
 		})
 		for wait {
@@ -286,7 +324,7 @@ func (m *main) compareIfTextFromFile(data *[]byte, dataHash []byte) {
 	fopenDialog.Show()
 }
 
-func (m *main) inputKeyWordForCompare(){
+func (m *main) inputKeyWordForCompare() {
 	wait := true
 	inputKeyWordWindow := m.app.NewWindow("Enter of the KeyWord")
 	inputKeyWordWindow.Resize(fyne.NewSize(550, 210))
